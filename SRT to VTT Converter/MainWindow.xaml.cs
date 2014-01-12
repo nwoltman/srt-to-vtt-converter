@@ -1,4 +1,27 @@
-﻿using System.ComponentModel;
+﻿/*
+The MIT License (MIT)
+
+Copyright (c) 2014 Nathan Woltman
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+using System.ComponentModel;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -11,6 +34,7 @@ namespace SRT_to_VTT_Converter
 	public partial class MainWindow
 	{
 		private readonly Microsoft.Win32.OpenFileDialog _dlgOpenFile = new Microsoft.Win32.OpenFileDialog();
+		private readonly BackgroundWorker _backgroundWorker = new BackgroundWorker();
 
 		public MainWindow()
 		{
@@ -20,73 +44,136 @@ namespace SRT_to_VTT_Converter
 			_dlgOpenFile.Filter = "SubRip Subtitles (*.srt)|*.srt"; //Filter files by .srt extension 
 			_dlgOpenFile.FileOk += dlgOpenFile_FileOk;
 			_dlgOpenFile.Multiselect = true; //Allow multiple files to be selected
+
+			//Initialize the background worker's info
+			_backgroundWorker.WorkerReportsProgress = true;
+			_backgroundWorker.WorkerSupportsCancellation = true;
+			_backgroundWorker.DoWork += BackgroundWorker_DoWork;
+			_backgroundWorker.RunWorkerCompleted += BackgroundWorker_RunWorkerCompleted;
+			_backgroundWorker.ProgressChanged += BackgroundWorker_ProgressChanged;
 		}
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		private void OpenFile(object sender, RoutedEventArgs e)
 		{
-			//Show the open file dialog
+			//Simply show the open file dialog
 			_dlgOpenFile.ShowDialog();
 		}
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		//Is called when the open file dialog is closed with a legal file being selected
 		private void dlgOpenFile_FileOk(object sender, CancelEventArgs e)
 		{
-			//Disable the open file button
-			btnOpenFile.IsEnabled = false;
+			//Set up GUI for conversion
+			BtnOpenFile.Visibility = Visibility.Hidden;	//Hide the open file button
+			BtnCancel.Visibility = Visibility.Visible;	//Show the cancel button
+			LblProgress.Content = "Progress: 0%";		//Set displayed progress to 0%
+			TxtOutput.Clear();							//Clear any text in the output textbox
+			TxtOutput.Visibility = Visibility.Visible;	//Show the outptut textbox
 
-			//Clear the output text
-			txtOutput.Text = "";
-
-			//Convert each file and show a done message for each one when finished
-			int nCount = 1;
-			foreach (var sFile in _dlgOpenFile.FileNames)
-			{
-				Convert(sFile);
-				txtOutput.Text += nCount++ + ". \"" +sFile + "\" - Done\n";
-			}
-
-			//Re-enable the open file button
-			btnOpenFile.IsEnabled = true;
+			//Run the BackgroundWorker asynchronously to convert the selected files
+			_backgroundWorker.RunWorkerAsync();
 		}
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		private void BtnCancel_Click(object sender, RoutedEventArgs e)
+		{
+			//Cancel the BackgroundWorker's process, change the cancel button's content, and disable the cancel button
+			_backgroundWorker.CancelAsync();
+			BtnCancel.Content = "Cancelling...";
+			BtnCancel.IsEnabled = false;
+		}
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		//This event handler is called by running the background worker asynchronously
+		private void BackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
+		{
+			int nConverted = 0; //This will count the number of conversions completed
+
+			//For each of the user's selected files
+			foreach (var sFile in _dlgOpenFile.FileNames)
+			{
+				//If the user has requested to cancel the conversion, set the Cancel flag and break out of the loop
+				if (_backgroundWorker.CancellationPending)
+				{
+					e.Cancel = true;
+					break;
+				}
+				//Convert the file and and report progress when finished
+				Convert(sFile);
+				++nConverted;
+				_backgroundWorker.ReportProgress(
+					(int)(nConverted/(double)_dlgOpenFile.FileNames.Length * 100), //% complete
+					nConverted + ". \"" + Path.GetFileName(sFile) + "\" - Done\n" //Done message for the file
+				);
+			}
+		}
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		//This event handler executes on the main thread to update displayed progress in the GUI
+		private void BackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+		{
+			LblProgress.Content = "Progress: " + e.ProgressPercentage + "%"; //Display percent of progress complete
+			TxtOutput.AppendText((string)e.UserState); //Append the message to the output textbox
+		}
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		//This event handler deals with the results of the background operation
+		private void BackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+		{
+			if (e.Cancelled)
+			{
+				TxtOutput.AppendText("PROCESS CANCELLED");
+				BtnCancel.Content = "Cancel"; //Change the cancel button's content back to what it was
+				BtnCancel.IsEnabled = true; //Re-enable the cancel button
+			}
+			else if (e.Error != null)
+			{
+				TxtOutput.AppendText("\nERROR!\nThe following error occured during the conversion:\n\n" + e.Error.Message);
+			}
+
+			BtnOpenFile.Visibility = Visibility.Visible; //Show the open file button
+			BtnCancel.Visibility = Visibility.Hidden; //Hide the cancel button
+		}
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		private void Convert(string sFilePath)
 		{
-			using( var strReader = new StreamReader(sFilePath) )
-            using ( var strWriter = new StreamWriter(sFilePath.Replace(".srt", ".vtt")) )
-            {
+			using (var strReader = new StreamReader(sFilePath))
+			using (var strWriter = new StreamWriter(sFilePath.Replace(".srt", ".vtt")))
+			{
 
-                var rgxDialogNumber = new Regex(@"^\d+$");
-                var rgxTimeFrame = new Regex(@"\d\d:\d\d:\d\d,\d\d\d --> \d\d:\d\d:\d\d,\d\d\d");
+				var rgxDialogNumber = new Regex(@"^\d+$");
+				var rgxTimeFrame = new Regex(@"\d\d:\d\d:\d\d,\d\d\d --> \d\d:\d\d:\d\d,\d\d\d");
 
-                //Write mandatory starting line for the WebVTT file
-                strWriter.WriteLine("WEBVTT");
-                strWriter.WriteLine("");
+				//Write mandatory starting line for the WebVTT file
+				strWriter.WriteLine("WEBVTT");
+				strWriter.WriteLine("");
 
-                //Handle each line of the SRT file
-                string sLine;
-                while ((sLine = strReader.ReadLine()) != null)
-                {
-                    //We only care about lines that aren't just an integer (aka ignore dialog id number lines)
-                    if (!rgxDialogNumber.IsMatch(sLine))
-                    {
-                        //If the line is a time frame line, replace the comma with a period
-                        if (rgxTimeFrame.IsMatch(sLine))
-                        {
-                            sLine = sLine.Replace(',', '.');
-                        }
-                        strWriter.WriteLine(sLine); //Write out the line
-                    }
-                }
-            }
+				//Handle each line of the SRT file
+				string sLine;
+				while ((sLine = strReader.ReadLine()) != null)
+				{
+					//We only care about lines that aren't just an integer (aka ignore dialog id number lines)
+					if (!rgxDialogNumber.IsMatch(sLine))
+					{
+						//If the line is a time frame line, replace the comma with a period
+						if (rgxTimeFrame.IsMatch(sLine))
+						{
+							sLine = sLine.Replace(',', '.');
+						}
+						strWriter.WriteLine(sLine); //Write out the line
+					}
+				}
+			}
 		}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	}
 }
