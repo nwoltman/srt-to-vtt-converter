@@ -1,0 +1,9 @@
+﻿<Window x:Class="SRT_to_VTT_Converter.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="600" Width="800" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
+    <Grid>
+		<Button Content="Choose .srt Files" Height="23" HorizontalAlignment="Left" Name="btnOpenFile" VerticalAlignment="Top" Width="100" Click="OpenFile" Margin="12,12,0,0" />
+		<TextBox Text="" Height="Auto" HorizontalAlignment="Left" Margin="12,44,0,0" Name="txtOutput" VerticalAlignment="Top" Width="Auto" Focusable="False" IsReadOnly="True" TextWrapping="Wrap" />
+	</Grid>
+</Window>
