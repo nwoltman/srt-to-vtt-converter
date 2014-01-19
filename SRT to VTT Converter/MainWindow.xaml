@@ -1,7 +1,7 @@
 ﻿<Window x:Class="SRT_to_VTT_Converter.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="SRT to VTT Converter" Height="600" Width="800" WindowStartupLocation="CenterScreen">
+        Title="SRT to VTT Converter" Height="600" Width="800" WindowStartupLocation="CenterScreen" Icon="icon.ico">
     <Grid>
 		<Button Name="BtnOpenFile" Content="Choose .srt Files" Margin="12,12,0,0" Width="100" Height="25" HorizontalAlignment="Left" VerticalAlignment="Top" Click="OpenFile" />
 		<Button Name="BtnCancel" Content="Cancel" Margin="12,12,0,0" Width="100" Height="25" HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="Hidden" Click="BtnCancel_Click" />
