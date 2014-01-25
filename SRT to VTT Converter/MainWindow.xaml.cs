@@ -21,6 +21,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -103,12 +104,21 @@ namespace SRT_to_VTT_Converter
 					e.Cancel = true;
 					break;
 				}
-				//Convert the file and and report progress when finished
-				Convert(sFile);
+
+				//Convert the file and report progress when finished
+				string sDoneMsg = "Done";
+				try
+				{
+					Convert(sFile);
+				}
+				catch (Exception ex)
+				{
+					sDoneMsg = "ERROR:\n" + ex.Message;
+				}
 				++nConverted;
 				_backgroundWorker.ReportProgress(
 					(int)(nConverted/(double)_dlgOpenFile.FileNames.Length * 100), //% complete
-					nConverted + ". \"" + Path.GetFileName(sFile) + "\" - Done\n" //Done message for the file
+					nConverted + ". \"" + Path.GetFileName(sFile) + "\" - " + sDoneMsg + "\n" //Done message for the file
 				);
 			}
 		}
@@ -120,6 +130,7 @@ namespace SRT_to_VTT_Converter
 		{
 			LblProgress.Content = "Progress: " + e.ProgressPercentage + "%"; //Display percent of progress complete
 			TxtOutput.AppendText((string)e.UserState); //Append the message to the output textbox
+			TxtOutput.ScrollToEnd(); //Scroll to the bottom to keep the most recently converted files visible
 		}
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
