@@ -37,6 +37,13 @@ namespace SRT_to_VTT_Converter
 		private readonly Microsoft.Win32.OpenFileDialog _dlgOpenFile = new Microsoft.Win32.OpenFileDialog();
 		private readonly BackgroundWorker _backgroundWorker = new BackgroundWorker();
 
+		/// <summary>
+		/// Always either 1 or -1.
+		/// 1 means add the offset time, -1 means subtract the offset time
+		/// </summary>
+		private int _nOffsetDirection = 1;
+		private long _offsetTicks;
+
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -70,9 +77,13 @@ namespace SRT_to_VTT_Converter
 			//Set up GUI for conversion
 			BtnOpenFile.Visibility = Visibility.Hidden;	//Hide the open file button
 			BtnCancel.Visibility = Visibility.Visible;	//Show the cancel button
+			TpOffset.IsEnabled = false;					//Disable the time picker
 			LblProgress.Content = "Progress: 0%";		//Set displayed progress to 0%
 			TxtOutput.Clear();							//Clear any text in the output textbox
 			TxtOutput.Visibility = Visibility.Visible;	//Show the outptut textbox
+
+			//Record the offset before starting the conversion
+			_offsetTicks = TpOffset.Value.HasValue ? TpOffset.Value.Value.TimeOfDay.Ticks : 0;
 
 			//Run the BackgroundWorker asynchronously to convert the selected files
 			_backgroundWorker.RunWorkerAsync();
@@ -86,6 +97,17 @@ namespace SRT_to_VTT_Converter
 			_backgroundWorker.CancelAsync();
 			BtnCancel.Content = "Cancelling...";
 			BtnCancel.IsEnabled = false;
+		}
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		private void BtnOffsetPlusMinus_Click(object sender, RoutedEventArgs e)
+		{
+			if (!TpOffset.Value.HasValue)
+				return;
+
+			_nOffsetDirection *= -1; //Toggle the offset direction
+			BtnOffsetPlusMinus.Content = _nOffsetDirection == 1 ? "+" : "-"; //Set the symbol based on the direction
 		}
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,7 +172,8 @@ namespace SRT_to_VTT_Converter
 			}
 
 			BtnOpenFile.Visibility = Visibility.Visible; //Show the open file button
-			BtnCancel.Visibility = Visibility.Hidden; //Hide the cancel button
+			BtnCancel.Visibility = Visibility.Hidden;	 //Hide the cancel button
+			TpOffset.IsEnabled = true;					 //Enable the time picker
 		}
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -162,7 +185,7 @@ namespace SRT_to_VTT_Converter
 			{
 
 				var rgxDialogNumber = new Regex(@"^\d+$");
-				var rgxTimeFrame = new Regex(@"\d\d:\d\d:\d\d,\d\d\d --> \d\d:\d\d:\d\d,\d\d\d");
+				var rgxTimeFrame = new Regex(@"(\d\d:\d\d:\d\d,\d\d\d) --> (\d\d:\d\d:\d\d,\d\d\d)");
 
 				//Write mandatory starting line for the WebVTT file
 				strWriter.WriteLine("WEBVTT");
@@ -173,15 +196,34 @@ namespace SRT_to_VTT_Converter
 				while ((sLine = strReader.ReadLine()) != null)
 				{
 					//We only care about lines that aren't just an integer (aka ignore dialog id number lines)
-					if (!rgxDialogNumber.IsMatch(sLine))
+					if (rgxDialogNumber.IsMatch(sLine))
+						continue;
+
+					//If the line is a time frame line, reformat and output the time frame
+					Match match = rgxTimeFrame.Match(sLine);
+					if (match.Success)
 					{
-						//If the line is a time frame line, replace the comma with a period
-						if (rgxTimeFrame.IsMatch(sLine))
+						if (_offsetTicks > 0)
 						{
-							sLine = sLine.Replace(',', '.');
+							//Extract the times from the matched time frame line
+							var tsStartTime = TimeSpan.Parse(match.Groups[1].Value.Replace(',', '.'));
+							var tsEndTime = TimeSpan.Parse(match.Groups[2].Value.Replace(',', '.'));
+
+							//Modify the time with the offset, making sure the time span gets set to 0 if it is going to be negative
+							long startTimeTicks = _nOffsetDirection * _offsetTicks + tsStartTime.Ticks;
+							long endTimeTicks = _nOffsetDirection * _offsetTicks + tsEndTime.Ticks;
+							tsStartTime = TimeSpan.FromTicks(startTimeTicks < 0 ? 0 : startTimeTicks);
+							tsEndTime = TimeSpan.FromTicks(endTimeTicks < 0 ? 0 : endTimeTicks);
+
+							//Construct the new time frame line
+							sLine = tsStartTime.ToString(@"hh\:mm\:ss\.fff") + " --> " + tsEndTime.ToString(@"hh\:mm\:ss\.fff");
 						}
-						strWriter.WriteLine(sLine); //Write out the line
+						else
+						{
+							sLine = sLine.Replace(',', '.'); //Simply replace the comma in the time with a period
+						}
 					}
+					strWriter.WriteLine(sLine); //Write out the line
 				}
 			}
 		}
