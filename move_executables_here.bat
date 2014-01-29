@@ -1,0 +1,2 @@
+cp "C:\Users\Nathan Woltman\Documents\GitHub Projects\srt-to-vtt-converter\x64 Installer\x64 Installer\Express\SingleImage\DiskImages\DISK1\srt_to_vtt_converter_x64.exe" srt_to_vtt_converter_x64.exe
+cp "C:\Users\Nathan Woltman\Documents\GitHub Projects\srt-to-vtt-converter\x86 Installer\x86 Installer\Express\SingleImage\DiskImages\DISK1\srt_to_vtt_converter_x86.exe" srt_to_vtt_converter_x86.exe
