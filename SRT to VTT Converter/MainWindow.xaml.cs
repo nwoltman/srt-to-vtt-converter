@@ -24,6 +24,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 using System;
 using System.ComponentModel;
 using System.IO;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Windows;
 
@@ -183,9 +184,9 @@ namespace SRT_to_VTT_Converter
 			using (var strReader = new StreamReader(sFilePath))
 			using (var strWriter = new StreamWriter(sFilePath.Replace(".srt", ".vtt")))
 			{
-
 				var rgxDialogNumber = new Regex(@"^\d+$");
 				var rgxTimeFrame = new Regex(@"(\d\d:\d\d:\d\d,\d\d\d) --> (\d\d:\d\d:\d\d,\d\d\d)");
+				var rgxItalicTag = new Regex(@"&lt;(/?i)&gt;");
 
 				//Write mandatory starting line for the WebVTT file
 				strWriter.WriteLine("WEBVTT");
@@ -210,8 +211,8 @@ namespace SRT_to_VTT_Converter
 							var tsEndTime = TimeSpan.Parse(match.Groups[2].Value.Replace(',', '.'));
 
 							//Modify the time with the offset, making sure the time span gets set to 0 if it is going to be negative
-							long startTimeTicks = _nOffsetDirection * _offsetTicks + tsStartTime.Ticks;
-							long endTimeTicks = _nOffsetDirection * _offsetTicks + tsEndTime.Ticks;
+							long startTimeTicks = _nOffsetDirection*_offsetTicks + tsStartTime.Ticks;
+							long endTimeTicks = _nOffsetDirection*_offsetTicks + tsEndTime.Ticks;
 							tsStartTime = TimeSpan.FromTicks(startTimeTicks < 0 ? 0 : startTimeTicks);
 							tsEndTime = TimeSpan.FromTicks(endTimeTicks < 0 ? 0 : endTimeTicks);
 
@@ -222,6 +223,12 @@ namespace SRT_to_VTT_Converter
 						{
 							sLine = sLine.Replace(',', '.'); //Simply replace the comma in the time with a period
 						}
+					}
+					else
+					{
+						//HTMl encode the text so it is displayed properly by browsers but then undo unnecessary encodings
+						sLine = WebUtility.HtmlEncode(sLine);
+						sLine = rgxItalicTag.Replace(sLine, "<$1>").Replace("&#39;", "'");
 					}
 					strWriter.WriteLine(sLine); //Write out the line
 				}
