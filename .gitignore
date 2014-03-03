@@ -1,0 +1,10 @@
+# Ignore files and folders ignored by the master branch
+/Express
+/packages
+/move_executables_here.bat
+*.suo
+
+# Ignore folders left from switching from the master branch
+/SRT to VTT Converter
+/x64 Installer
+/x86 Installer
