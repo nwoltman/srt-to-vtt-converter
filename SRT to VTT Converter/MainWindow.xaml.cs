@@ -186,7 +186,6 @@ namespace SRT_to_VTT_Converter
 			{
 				var rgxDialogNumber = new Regex(@"^\d+$");
 				var rgxTimeFrame = new Regex(@"(\d\d:\d\d:\d\d,\d\d\d) --> (\d\d:\d\d:\d\d,\d\d\d)");
-				var rgxItalicTag = new Regex(@"&lt;(/?i)&gt;");
 
 				//Write mandatory starting line for the WebVTT file
 				strWriter.WriteLine("WEBVTT");
@@ -226,10 +225,11 @@ namespace SRT_to_VTT_Converter
 					}
 					else
 					{
-						//HTMl encode the text so it is displayed properly by browsers but then undo unnecessary encodings
+						//HTML-encode the text so it is displayed properly by browsers but then undo unnecessary encodings
 						sLine = WebUtility.HtmlEncode(sLine);
-						sLine = rgxItalicTag.Replace(sLine, "<$1>").Replace("&#39;", "'");
+						sLine = sLine.Replace("&#39;", "'").Replace("&quot;", "\"").Replace("&lt;", "<").Replace("&gt;", ">");
 					}
+
 					strWriter.WriteLine(sLine); //Write out the line
 				}
 			}

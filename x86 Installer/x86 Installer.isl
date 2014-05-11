@@ -4375,9 +4375,9 @@ QwBEAF8AUgBPAE0AAQBFAHgAcAByAGUAcwBzAA==
 		<row><td>PROGMSG_IIS_ROLLBACKVROOTS</td><td>##IDS_PROGMSG_IIS_ROLLBACKVROOTS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
 		<row><td>PROGRAMFILETOLAUNCHATEND</td><td>[INSTALLDIR]SRT_to_VTT_Converter.exe</td><td/></row>
-		<row><td>ProductCode</td><td>{8FA9A191-D1DA-425C-ADD9-D4ABC414797E}</td><td/></row>
+		<row><td>ProductCode</td><td>{26BC84AF-3803-46D1-87B9-7CB8B6B2F290}</td><td/></row>
 		<row><td>ProductName</td><td>SRT to VTT Converter</td><td/></row>
-		<row><td>ProductVersion</td><td>0.3.0</td><td/></row>
+		<row><td>ProductVersion</td><td>0.3.1</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -4666,7 +4666,7 @@ QwBEAF8AUgBPAE0AAQBFAHgAcAByAGUAcwBzAA==
 		<col def="s72">ActionProperty</col>
 		<col def="S72">ISDisplayName</col>
 		<row><td>{00000000-0000-0000-0000-000000000000}</td><td>***ALL_VERSIONS***</td><td></td><td></td><td>2</td><td/><td>ISFOUNDNEWERPRODUCTVERSION</td><td>ISPreventDowngrade</td></row>
-		<row><td>{E67A68E8-385F-45AD-81FD-AE831B4C16BA}</td><td></td><td>0.3.0</td><td></td><td>256</td><td/><td>ISACTIONPROP1</td><td>GeneralUpgrade</td></row>
+		<row><td>{E67A68E8-385F-45AD-81FD-AE831B4C16BA}</td><td></td><td>0.3.1</td><td></td><td>256</td><td/><td>ISACTIONPROP1</td><td>GeneralUpgrade</td></row>
 	</table>
 
 	<table name="Verb">
