@@ -2,7 +2,7 @@ SRT to VTT Converter
 ====================
 
 A simple application for quickly converting subtitle files from SubRib (.srt) format to WebVTT (.vtt) format.
-If you don't need a GUI, try the [command line version](https://github.com/woollybogger/srt-to-vtt-cl).
+If you don't need a GUI or you need a version for OS X, try the [command line version](https://github.com/woollybogger/srt-to-vtt-cl).
 
 ## Installation
 
