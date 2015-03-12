@@ -1,22 +1,84 @@
 ﻿<Window x:Class="SRT_to_VTT_Converter.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-		xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-        Title="SRT to VTT Converter" Height="600" Width="800" WindowStartupLocation="CenterScreen" Icon="icon.ico">
-    <Grid>
-		<Button Name="BtnOpenFile" Content="Choose .srt Files" Margin="12,12,0,0" Width="100" Height="25" HorizontalAlignment="Left" VerticalAlignment="Top" Click="OpenFile" />
-		<Button Name="BtnCancel" Content="Cancel" Margin="12,12,0,0" Width="100" Height="25" HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="Hidden" Click="BtnCancel_Click" />
-		<WrapPanel  Margin="152,13,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
-			<Label Content="Timing offset:" Padding="0,4" />
-			<Button Name="BtnOffsetPlusMinus" Content="+" Margin="15,0,0,0" Padding="0,-2,0,0" Width="20" Height="20" FontSize="14" Click="BtnOffsetPlusMinus_Click">
-				<Button.ToolTip>
-					<ToolTip Content="Toggle +/-" />
-				</Button.ToolTip>
-			</Button>
-			<xctk:TimePicker Name="TpOffset" Format="Custom" FormatString="HH:mm:ss.fff" Value="01/01/1970" TimeInterval="0:00:00:01" EndTime="0:0:59:59" Margin="5,1,0,0" Padding="0" Width="110" Height="22" HorizontalAlignment="Left" VerticalAlignment="Top" />
-			<Label Content="(Time Format: &lt;hr : m : s . ms&gt;)" Margin="20,0" Padding="0,4" />
-		</WrapPanel>
-		<Label Name="LblProgress" HorizontalAlignment="Left" Margin="12,47,0,0" Padding="0,4" VerticalAlignment="Top" />
-		<TextBox Name="TxtOutput" Width="Auto" Height="Auto" Margin="12,80,12,12" VerticalAlignment="Top" Focusable="False" IsReadOnly="True" TextWrapping="Wrap" Visibility="Hidden" VerticalScrollBarVisibility="Auto" />
-	</Grid>
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        Title="SRT to VTT Converter"
+        Width="800"
+        Height="600"
+        WindowStartupLocation="CenterScreen"
+        Icon="icon.ico">
+  <Grid>
+    <WrapPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12,13,0,0">
+      <Button Name="BtnOpenFile" Content="Choose .srt Files" Width="100" Height="25" Click="OpenFile" />
+      <Button Name="BtnCancel" Content="Cancel" Width="100" Height="25" Visibility="Collapsed" Click="BtnCancel_Click" />
+    </WrapPanel>
+    <WrapPanel Margin="152,13,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+      <Label Content="Timing offset:" Padding="0,4" />
+      <Button
+        Name="BtnOffsetPlusMinus"
+        Content="+"
+        Click="BtnOffsetPlusMinus_Click"
+        Margin="12,0,0,0"
+        Padding="0,-3,0,0"
+        Width="20"
+        Height="20"
+        FontSize="14">
+        <Button.ToolTip>
+          <ToolTip Content="Toggle +/-" />
+        </Button.ToolTip>
+      </Button>
+      <WrapPanel Name="WpOffsetInput"  Margin="8,1,0,0">
+        <TextBox
+          Name="TbHours"
+          Text="00"
+          TextChanged="NumberTextBox_TextChanged"
+          LostFocus="NumberTextBox_LostFocus"
+          HorizontalContentAlignment="Center"
+          VerticalContentAlignment="Center"
+          MinWidth="28"
+          MaxLines="1"
+          MaxLength="3"
+        />
+        <Label Content=":" />
+        <TextBox
+          Name="TbMinutes"
+          Text="00"
+          TextChanged="NumberTextBox_TextChanged"
+          LostFocus="NumberTextBox_LostFocus"
+          HorizontalContentAlignment="Center"
+          VerticalContentAlignment="Center"
+          MinWidth="28"
+          MaxLines="1"
+          MaxLength="5"
+        />
+        <Label Content=":" />
+        <TextBox
+          Name="TbSeconds"
+          Text="00"
+          TextChanged="NumberTextBox_TextChanged"
+          LostFocus="NumberTextBox_LostFocus"
+          HorizontalContentAlignment="Center"
+          VerticalContentAlignment="Center"
+          MinWidth="28"
+          MaxLines="1"
+          MaxLength="7"
+        />
+        <Label Content="." />
+        <TextBox
+          Name="TbMilliseconds"
+          Text="000"
+          TextChanged="NumberTextBox_TextChanged"
+          LostFocus="NumberTextBox_LostFocus"
+          HorizontalContentAlignment="Center"
+          VerticalContentAlignment="Center"
+          MinWidth="32"
+          MaxLines="1"
+          MaxLength="9"
+        />
+      </WrapPanel>
+      <Label Content="(Time Format: &lt;h : m : s . ms&gt;)" Margin="20,0" Padding="0,4" />
+    </WrapPanel>
+    <Label Name="LblProgress" HorizontalAlignment="Left" Margin="12,47,0,0" Padding="0,4" VerticalAlignment="Top" />
+    <TextBox Name="TxtOutput" Width="Auto" Height="Auto" Margin="12,80,12,12" VerticalAlignment="Top" Focusable="False" IsReadOnly="True" TextWrapping="Wrap" Visibility="Hidden" VerticalScrollBarVisibility="Auto" />
+  </Grid>
 </Window>
