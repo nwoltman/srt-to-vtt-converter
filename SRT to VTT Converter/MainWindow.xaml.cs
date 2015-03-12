@@ -256,16 +256,6 @@ namespace SRT_to_VTT_Converter
 							sLine = sLine.Replace(',', '.'); // Simply replace the comma in the time with a period
 						}
 					}
-					else
-					{
-						// HTML-encode the text so it is displayed properly by browsers,
-						// but then undo unnecessary encodings
-						sLine = WebUtility.HtmlEncode(sLine);
-						sLine = sLine.Replace("&#39;", "'")
-						             .Replace("&quot;", "\"")
-						             .Replace("&lt;", "<")
-						             .Replace("&gt;", ">");
-					}
 
 					strWriter.WriteLine(sLine); // Write out the line
 				}
