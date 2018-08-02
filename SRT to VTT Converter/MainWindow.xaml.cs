@@ -202,7 +202,7 @@ namespace SRT_to_VTT_Converter
             }
             else
             {
-                TxtOutput.AppendText("Success ✔️");
+                TxtOutput.AppendText("Finished");
             }
 
             BtnOpenFile.Visibility = Visibility.Visible;
