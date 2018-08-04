@@ -40,6 +40,7 @@ namespace SRT_to_VTT_Converter
 
         private int _offsetMilliseconds = 0;
         private bool _negativeOffset = false;
+        private bool _assumeANSI;
 
         public MainWindow()
         {
@@ -121,8 +122,9 @@ namespace SRT_to_VTT_Converter
             TxtOutput.Clear();
             TxtOutput.Visibility = Visibility.Visible;
 
-            // Record the offset before starting the conversion
+            // Record options before starting the conversion
             _offsetMilliseconds = GetOffsetTime();
+            _assumeANSI = CbIsANSI.IsChecked == true;
 
             // Run the BackgroundWorker asynchronously to convert the selected files
             _backgroundWorker.RunWorkerAsync();
@@ -155,7 +157,7 @@ namespace SRT_to_VTT_Converter
                 string doneMsg = "Done";
                 try
                 {
-                    SubtitleConverter.ConvertSRTToVTT(filePath, _offsetMilliseconds);
+                    SubtitleConverter.ConvertSRTToVTT(filePath, _offsetMilliseconds, _assumeANSI);
                 }
                 catch (Exception ex)
                 {

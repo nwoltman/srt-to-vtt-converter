@@ -78,7 +78,8 @@
       </WrapPanel>
       <Label Content="(Time Format: &lt;h : m : s . ms&gt;)" Margin="20,0" Padding="0,4" />
     </WrapPanel>
-    <Label Name="LblProgress" HorizontalAlignment="Left" Margin="12,47,0,0" Padding="0,4" VerticalAlignment="Top" />
-    <TextBox Name="TxtOutput" Width="Auto" Height="Auto" Margin="12,80,12,12" VerticalAlignment="Top" Focusable="False" IsReadOnly="True" TextWrapping="Wrap" Visibility="Hidden" VerticalScrollBarVisibility="Auto" />
+    <CheckBox Name="CbIsANSI" Content="Assume .srt files are ANSI encoding" HorizontalAlignment="Left" Margin="152,50,0,0" ToolTip="SRT to VTT Converter assumes files are Unicode (e.g. UTF-8, UTF-16, etc.) by default. Select this option to read files using your system's default ANSI encoding." VerticalAlignment="Top" />
+    <Label Name="LblProgress" HorizontalAlignment="Left" Margin="12,70,0,0" Padding="0,4" VerticalAlignment="Top" />
+    <TextBox Name="TxtOutput" Width="Auto" Height="Auto" Margin="12,100,12,12" VerticalAlignment="Top" Focusable="False" IsReadOnly="True" TextWrapping="Wrap" Visibility="Hidden" VerticalScrollBarVisibility="Auto" />
   </Grid>
 </Window>

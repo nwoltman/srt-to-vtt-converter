@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace SRT_to_VTT_Converter
@@ -9,9 +10,9 @@ namespace SRT_to_VTT_Converter
         private static readonly Regex _rgxCueID = new Regex(@"^\d+$");
         private static readonly Regex _rgxTimeFrame = new Regex(@"(\d\d:\d\d:\d\d(?:[,.]\d\d\d)?) --> (\d\d:\d\d:\d\d(?:[,.]\d\d\d)?)");
 
-        public static void ConvertSRTToVTT(string filePath, int offsetMilliseconds)
+        public static void ConvertSRTToVTT(string filePath, int offsetMilliseconds, bool readANSI)
         {
-            using (var srtReader = new StreamReader(filePath))
+            using (var srtReader = readANSI ? new StreamReader(filePath, Encoding.Default) : new StreamReader(filePath))
             using (var vttWriter = new StreamWriter(filePath.Replace(".srt", ".vtt")))
             {
                 vttWriter.WriteLine("WEBVTT"); // Starting line for the WebVTT files
